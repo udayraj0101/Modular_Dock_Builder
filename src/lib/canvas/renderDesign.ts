@@ -14,6 +14,7 @@ export type RenderOptions = {
     mode: "add" | "remove";
   } | null;
   disconnected?: boolean;
+  cubeImage?: HTMLImageElement | null;
 };
 
 const COLOURS = {
@@ -46,7 +47,7 @@ export function renderDesign(
   ctx.clearRect(0, 0, width, height);
 
   drawGrid(ctx, width, height, viewport);
-  drawCubes(ctx, viewport, design);
+  drawCubes(ctx, viewport, design, opts.cubeImage);
   drawExposedEdges(ctx, viewport, exposedEdges);
   if (drag) drawDragPreview(ctx, viewport, drag);
   if (hover && !drag) drawHover(ctx, viewport, hover);
@@ -98,16 +99,34 @@ function drawCubes(
   ctx: CanvasRenderingContext2D,
   v: Viewport,
   design: Design,
+  image?: HTMLImageElement | null,
 ) {
   const s = cellSize(v);
-  ctx.fillStyle = COLOURS.cubeFill;
   ctx.strokeStyle = COLOURS.cubeStroke;
   ctx.lineWidth = 1;
   for (const key of design.cubes) {
     const { x, y } = fromKey(key);
     const px = x * s + v.panX;
     const py = y * s + v.panY;
-    ctx.fillRect(px, py, s, s);
+    if (image) {
+      const rx = Math.round(px);
+      const ry = Math.round(py);
+      const rs = Math.round(s);
+      const scale = Math.max(rs / image.naturalWidth, rs / image.naturalHeight);
+      const dw = image.naturalWidth * scale;
+      const dh = image.naturalHeight * scale;
+      const dx = rx + (rs - dw) / 2;
+      const dy = ry + (rs - dh) / 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(rx, ry, rs, rs);
+      ctx.clip();
+      ctx.drawImage(image, dx, dy, dw, dh);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = COLOURS.cubeFill;
+      ctx.fillRect(px, py, s, s);
+    }
     ctx.strokeRect(Math.round(px) + 0.5, Math.round(py) + 0.5, s, s);
   }
 }

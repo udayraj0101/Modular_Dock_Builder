@@ -52,6 +52,13 @@ export function DockCanvas({ api, tool }: Props) {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [pan, setPan] = useState<PanState | null>(null);
   const [spaceHeld, setSpaceHeld] = useState(false);
+  const [cubeImage, setCubeImage] = useState<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/assets/dock_image.png";
+    img.onload = () => setCubeImage(img);
+  }, []);
 
   const disconnected = api.issues.some((i) => i.code === "disconnected");
 
@@ -94,8 +101,9 @@ export function DockCanvas({ api, tool }: Props) {
         ? { from: drag.startGrid, to: drag.currentGrid, mode: drag.mode }
         : null,
       disconnected,
+      cubeImage,
     });
-  }, [viewport, api.design, api.exposedEdges, hover, drag, disconnected]);
+  }, [viewport, api.design, api.exposedEdges, hover, drag, disconnected, cubeImage]);
 
   // Space-bar toggles pan mode.
   useEffect(() => {
