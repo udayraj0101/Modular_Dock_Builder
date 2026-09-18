@@ -8,7 +8,7 @@ export type Viewport = {
 };
 
 export const DEFAULT_VIEWPORT: Viewport = {
-  cellPx: 40,
+  cellPx: 120,
   zoom: 1,
   panX: 0,
   panY: 0,
