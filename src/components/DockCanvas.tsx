@@ -297,7 +297,7 @@ export function DockCanvas({ api, tool }: Props) {
   return (
     <div
       ref={wrapperRef}
-      className="relative h-full w-full bg-white overflow-hidden select-none"
+      className="relative h-full w-full overflow-hidden select-none"
     >
       <canvas
         ref={canvasRef}

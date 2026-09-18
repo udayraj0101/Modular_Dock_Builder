@@ -18,8 +18,8 @@ export type RenderOptions = {
 };
 
 const COLOURS = {
-  bgLine: "#e5e7eb",
-  bgAxis: "#94a3b8",
+  bgLine: "rgba(255,255,255,0.15)",
+  bgAxis: "rgba(255,255,255,0.35)",
   cubeFill: "#94a3b8",
   cubeStroke: "#475569",
   exposedEdge: "#dc2626",
@@ -46,15 +46,27 @@ export function renderDesign(
   ctx.save();
   ctx.clearRect(0, 0, width, height);
 
+  drawBackground(ctx, width, height);
   drawGrid(ctx, width, height, viewport);
   drawCubes(ctx, viewport, design, opts.cubeImage);
-  drawExposedEdges(ctx, viewport, exposedEdges);
   if (drag) drawDragPreview(ctx, viewport, drag);
   if (hover && !drag) drawHover(ctx, viewport, hover);
   drawDimensions(ctx, viewport, design);
   if (disconnected) drawDisconnectedBadge(ctx, width, height);
 
   ctx.restore();
+}
+
+function drawBackground(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+) {
+  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  grad.addColorStop(0, "#059CBB");
+  grad.addColorStop(1, "#037a93");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
 }
 
 function drawGrid(
