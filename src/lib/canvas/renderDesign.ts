@@ -1,6 +1,7 @@
 import type { Design, ExposedEdges } from "@/lib/dock/types";
 import { fromKey } from "@/lib/dock/types";
 import { getBounds, getDimensions } from "@/lib/dock/design";
+import { getFourWayIntersections } from "@/lib/dock/adjacency";
 import { cellSize, type Viewport } from "./viewport";
 
 export type RenderOptions = {
@@ -15,7 +16,13 @@ export type RenderOptions = {
   } | null;
   disconnected?: boolean;
   cubeImage?: HTMLImageElement | null;
+  pinImage?: HTMLImageElement | null;
 };
+
+// Center pin is drawn on top of the merged lugs at each 4-way intersection.
+// Sized as a fraction of the cell so it scales with zoom. 0.28 = pin diameter
+// is ~28% of one cell — matches the visual weight in the client's reference.
+const PIN_SIZE_FRACTION = 0.28;
 
 const COLOURS = {
   bgLine: "rgba(255,255,255,0.15)",
@@ -49,6 +56,7 @@ export function renderDesign(
   drawBackground(ctx, width, height);
   drawGrid(ctx, width, height, viewport);
   drawCubes(ctx, viewport, design, opts.cubeImage);
+  drawCenterPins(ctx, viewport, design, opts.pinImage);
   if (drag) drawDragPreview(ctx, viewport, drag);
   if (hover && !drag) drawHover(ctx, viewport, hover);
   drawDimensions(ctx, viewport, design);
@@ -107,6 +115,12 @@ function drawGrid(
   ctx.stroke();
 }
 
+// dock_image_square.png (Rishabh v1, auto-cropped square 1450×1450). Lug
+// tips symmetric within 4px across all 4 corners; body fills 88% of PNG.
+// Overshoot (1/0.881 - 1) / 2 ≈ 0.067 makes bodies touch and lug centers
+// land at the grid intersections.
+const LUG_OVERSHOOT = 0.067;
+
 function drawCubes(
   ctx: CanvasRenderingContext2D,
   v: Viewport,
@@ -114,32 +128,59 @@ function drawCubes(
   image?: HTMLImageElement | null,
 ) {
   const s = cellSize(v);
+
+  if (image) {
+    const overshoot = s * LUG_OVERSHOOT;
+    const drawSize = s + overshoot * 2;
+    for (const key of design.cubes) {
+      const { x, y } = fromKey(key);
+      const px = x * s + v.panX;
+      const py = y * s + v.panY;
+      ctx.drawImage(
+        image,
+        Math.round(px - overshoot),
+        Math.round(py - overshoot),
+        Math.round(drawSize),
+        Math.round(drawSize),
+      );
+    }
+    return;
+  }
+
+  // Fallback when no image is available yet: solid grey squares with outline.
+  ctx.fillStyle = COLOURS.cubeFill;
   ctx.strokeStyle = COLOURS.cubeStroke;
   ctx.lineWidth = 1;
   for (const key of design.cubes) {
     const { x, y } = fromKey(key);
     const px = x * s + v.panX;
     const py = y * s + v.panY;
-    if (image) {
-      const rx = Math.round(px);
-      const ry = Math.round(py);
-      const rs = Math.round(s);
-      const scale = Math.max(rs / image.naturalWidth, rs / image.naturalHeight);
-      const dw = image.naturalWidth * scale;
-      const dh = image.naturalHeight * scale;
-      const dx = rx + (rs - dw) / 2;
-      const dy = ry + (rs - dh) / 2;
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(rx, ry, rs, rs);
-      ctx.clip();
-      ctx.drawImage(image, dx, dy, dw, dh);
-      ctx.restore();
-    } else {
-      ctx.fillStyle = COLOURS.cubeFill;
-      ctx.fillRect(px, py, s, s);
-    }
+    ctx.fillRect(px, py, s, s);
     ctx.strokeRect(Math.round(px) + 0.5, Math.round(py) + 0.5, s, s);
+  }
+}
+
+function drawCenterPins(
+  ctx: CanvasRenderingContext2D,
+  v: Viewport,
+  design: Design,
+  image?: HTMLImageElement | null,
+) {
+  if (!image) return;
+  const s = cellSize(v);
+  const size = s * PIN_SIZE_FRACTION;
+  const half = size / 2;
+  const junctions = getFourWayIntersections(design);
+  for (const { gx, gy } of junctions) {
+    const cx = gx * s + v.panX;
+    const cy = gy * s + v.panY;
+    ctx.drawImage(
+      image,
+      Math.round(cx - half),
+      Math.round(cy - half),
+      Math.round(size),
+      Math.round(size),
+    );
   }
 }
 

@@ -8,8 +8,11 @@ describe("BOM computation", () => {
     expect(bom.cubeCount).toBe(24);
     expect(bom.exposedEdges).toBe(20);
     expect(bom.internalConnections).toBe(38);
+    expect(bom.fourWayIntersections).toBe(15);
     const cube = bom.lines.find((l) => l.code === "CUBE-500");
     expect(cube?.quantity).toBe(24);
+    const pin = bom.lines.find((l) => l.code === "PIN-CENTER");
+    expect(pin?.quantity).toBe(15);
   });
 
   it("uses injected rules over the placeholder", () => {
@@ -28,7 +31,8 @@ describe("BOM computation", () => {
       cubeCount: 3,
       internalConnections: 2,
       exposedEdges: 8,
+      fourWayIntersections: 0,
     });
-    expect(bom).toHaveLength(3);
+    expect(bom).toHaveLength(4);
   });
 });

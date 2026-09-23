@@ -40,13 +40,17 @@ export function InfoPanel({ api }: Props) {
       )}
 
       <Section title="Bill of materials (placeholder rules)">
-        <div className="mb-2 grid grid-cols-3 gap-2 text-xs text-slate-500">
+        <div className="mb-2 grid grid-cols-4 gap-2 text-xs text-slate-500">
           <div>Cubes</div>
           <div>Internal joins</div>
+          <div>Center pins</div>
           <div>Exposed edges</div>
           <div className="text-slate-900 font-semibold">{bom.cubeCount}</div>
           <div className="text-slate-900 font-semibold">
             {bom.internalConnections}
+          </div>
+          <div className="text-slate-900 font-semibold">
+            {bom.fourWayIntersections}
           </div>
           <div className="text-slate-900 font-semibold">
             {bom.exposedEdges}

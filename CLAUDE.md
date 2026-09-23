@@ -72,7 +72,7 @@ Legend: [x] done · [~] in progress · [ ] not started
 - [ ] Plug in real client connection/BOM rules when supplied  *(blocked on client)*
 - [ ] Verify all 4 client test configs match manual counts  *(blocked on client)*
 - [x] Perf pass at 500+ cubes — user verified 906 cubes render smoothly in 2D and 3D on **2026-09-15**
-- [ ] Preview build for client testing  *(deferred by user — deploy after features)*
+- [x] Preview build for client testing — **live at https://modular-dock-builder-sooty.vercel.app** (2026-09-15). Deployed from `github.com/udayraj0101/Modular_Dock_Builder` (personal fork) under Uday's personal Vercel Hobby account. See `memory/project_vercel_deploy_ownership.md` for why not under the `appmechanic` Vercel team.
 - [x] Add "Dock with a finger" (4th) example template landed **2026-09-15** — `templates.ts` (3 m × 2 m body + 2 m × 1 m mooring finger, geometry still pending client confirmation)
 - [x] Softened placeholder labels to "(example)" so customer-facing text doesn't say "placeholder"
 

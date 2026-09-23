@@ -53,11 +53,18 @@ export function DockCanvas({ api, tool }: Props) {
   const [pan, setPan] = useState<PanState | null>(null);
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [cubeImage, setCubeImage] = useState<HTMLImageElement | null>(null);
+  const [pinImage, setPinImage] = useState<HTMLImageElement | null>(null);
 
   useEffect(() => {
     const img = new Image();
-    img.src = "/assets/dock_image.png";
+    img.src = "/assets/dock_image_square.png";
     img.onload = () => setCubeImage(img);
+  }, []);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/assets/center_pin.png";
+    img.onload = () => setPinImage(img);
   }, []);
 
   const disconnected = api.issues.some((i) => i.code === "disconnected");
@@ -102,8 +109,9 @@ export function DockCanvas({ api, tool }: Props) {
         : null,
       disconnected,
       cubeImage,
+      pinImage,
     });
-  }, [viewport, api.design, api.exposedEdges, hover, drag, disconnected, cubeImage]);
+  }, [viewport, api.design, api.exposedEdges, hover, drag, disconnected, cubeImage, pinImage]);
 
   // Space-bar toggles pan mode.
   useEffect(() => {

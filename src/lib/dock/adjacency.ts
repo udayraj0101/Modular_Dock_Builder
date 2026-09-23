@@ -78,3 +78,39 @@ export function countInternalConnections(design: Design): number {
   }
   return count;
 }
+
+/**
+ * Grid corner points where four cubes meet — the (gx, gy) crosshair sits
+ * between cubes (gx-1, gy-1), (gx, gy-1), (gx-1, gy), (gx, gy).
+ * A center pin is placed at each of these locations on the physical dock.
+ */
+export function getFourWayIntersections(
+  design: Design,
+): Array<{ gx: number; gy: number }> {
+  const cubes = getCubeSet(design);
+  const seen = new Set<string>();
+  const result: Array<{ gx: number; gy: number }> = [];
+  for (const key of design.cubes) {
+    const { x, y } = fromKey(key);
+    // Each cube is the top-left of an intersection at (x+1, y+1). Check the
+    // other 3 cubes needed to complete the 2x2.
+    if (
+      cubes.has(toKey(x + 1, y)) &&
+      cubes.has(toKey(x, y + 1)) &&
+      cubes.has(toKey(x + 1, y + 1))
+    ) {
+      const gx = x + 1;
+      const gy = y + 1;
+      const k = `${gx},${gy}`;
+      if (!seen.has(k)) {
+        seen.add(k);
+        result.push({ gx, gy });
+      }
+    }
+  }
+  return result;
+}
+
+export function countFourWayIntersections(design: Design): number {
+  return getFourWayIntersections(design).length;
+}
